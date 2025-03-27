@@ -1,0 +1,61 @@
+.image-uploader {
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+}
+
+.document-uploader {
+  border: 2px dashed #4282fe;
+  background-color: #f4fbff;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.upload-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.upload-info svg {
+  font-size: 36px;
+  margin-right: 1rem;
+}
+
+.file-list {
+  margin-top: 10px;
+}
+
+.file-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  border: 1px solid #ccc;
+  margin-bottom: 5px;
+}
+
+.file-actions svg {
+  cursor: pointer;
+  font-size: 18px;
+  color: red;
+}
+
+.success-file {
+  margin-top: 10px;
+  color: #6dc24b;
+  font-weight: bold;
+}
+
+.browse-btn {
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: #4282fe;
+  color: white;
+  cursor: pointer;
+  text-align: center;
+}
