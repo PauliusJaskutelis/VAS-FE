@@ -1,12 +1,11 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:8080/api";
+import axios from 'axios';
+import { API_BASE_URL } from '../config';
 
 export const uploadImage = async (file: File) => {
   const payload = new FormData();
-  payload.append("file", file);
+  payload.append('file', file);
 
-  return axios.post(`${API_URL}/upload`, payload, {
-    headers: { "Content-Type": "multipart/form-data" },
+  return axios.post(`${API_BASE_URL}/image`, payload, {
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
 };
