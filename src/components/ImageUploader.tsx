@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { MdClear } from 'react-icons/md';
 import { uploadImage } from '../services/api';
@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import './image-uploader.css';
 import { useSettings } from '../context/SettingsContext';
+import { useResults } from '../context/ResultsContext';
 
 interface Props {
   onUploadSuccess?: (result: any) => void;
@@ -29,6 +30,8 @@ const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
   const [snackOpen, setSnackOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'success' | 'error'>('success');
+
+  const { addImageResult } = useResults();
   const { settings } = useSettings();
   const { predictionCount, confidenceThreshold } = settings;
 
@@ -59,6 +62,18 @@ const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
       console.log('result', res);
       setMessage('Successful Upload!');
       setStatus('success');
+
+      files.forEach((file, index) => {
+        const match = res.data.find((r: any) => r.filename === file.name);
+        if (match) {
+          const preview = URL.createObjectURL(file);
+          addImageResult({
+            filename: match.filename,
+            preview,
+            results: match.results,
+          });
+        }
+      });
       if (onUploadSuccess) onUploadSuccess(res.data);
     } catch (e) {
       console.error(e);
