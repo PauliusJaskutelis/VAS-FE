@@ -8,12 +8,17 @@ interface NavigationProps {
 
 const Navigation: React.FC<NavigationProps> = ({ onSettingsClick }) => {
   return (
-    <AppBar position="static" color="primary" elevation={0}>
-      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+    <AppBar position="static" elevation={5}>
+      <Toolbar
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          backgroundColor: 'background.paper',
+        }}
+      >
         <Typography variant="h6" component="div">
           VAS
         </Typography>
-
         <IconButton edge="end" color="inherit" onClick={onSettingsClick}>
           <SettingsIcon />
         </IconButton>
