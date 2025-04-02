@@ -1,13 +1,22 @@
-import { Box, Card, CardContent, Typography, Button } from '@mui/material';
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Grid,
+  Divider,
+} from '@mui/material';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useResults } from '../context/ResultsContext';
 
 const Results = () => {
-  const location = useLocation();
+  const { images, clearResults } = useResults();
   const navigate = useNavigate();
 
-  const { results, imagePreview } = location.state || {
-    results: [],
-    imagePreview: null,
+  const handleBack = () => {
+    clearResults();
+    navigate('/');
   };
 
   return (
@@ -15,46 +24,70 @@ const Results = () => {
       sx={{
         minHeight: '100vh',
         backgroundColor: 'background.default',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        paddingTop: 4,
+        p: 4,
       }}
     >
-      <Typography variant="h4" gutterBottom color="text.primary">
+      <Typography
+        variant="h4"
+        gutterBottom
+        color="text.primary"
+        textAlign="center"
+      >
         Classification Results
       </Typography>
 
-      {imagePreview && (
-        <Box mb={3}>
-          <img
-            src={imagePreview}
-            alt="Preview"
-            style={{ maxWidth: 300, borderRadius: 8 }}
-          />
-        </Box>
+      {images.length === 0 ? (
+        <Typography variant="body1" textAlign="center">
+          No results available.
+        </Typography>
+      ) : (
+        <Grid container spacing={3} justifyContent="center">
+          {images.map((img, index) => (
+            <Grid item key={index} xs={12} md={8}>
+              <Card
+                sx={{ display: 'flex', backgroundColor: 'background.paper' }}
+              >
+                <Box sx={{ p: 2 }}>
+                  <img
+                    src={img.preview}
+                    alt={img.filename}
+                    style={{ width: 200, height: 'auto', borderRadius: 8 }}
+                  />
+                  <Typography variant="caption" display="block" mt={1}>
+                    {img.filename}
+                  </Typography>
+                </Box>
+                <Divider orientation="vertical" flexItem sx={{ mx: 2 }} />
+                <CardContent sx={{ flex: 1 }}>
+                  {img.results.length > 0 ? (
+                    img.results.map((r, i) => (
+                      <Box
+                        key={i}
+                        display="flex"
+                        justifyContent="space-between"
+                        py={1}
+                      >
+                        <Typography variant="body1">{r.label}</Typography>
+                        <Typography variant="body1">
+                          {(r.confidence * 100).toFixed(1)}%
+                        </Typography>
+                      </Box>
+                    ))
+                  ) : (
+                    <Typography variant="body2">No results found.</Typography>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
+        </Grid>
       )}
 
-      <Card sx={{ width: 400, backgroundColor: 'background.paper' }}>
-        <CardContent>
-          {results.length > 0 ? (
-            results.map((r: any, i: number) => (
-              <Box key={i} display="flex" justifyContent="space-between" py={1}>
-                <Typography variant="body1">{r.label}</Typography>
-                <Typography variant="body1">
-                  {(r.confidence * 100).toFixed(1)}%
-                </Typography>
-              </Box>
-            ))
-          ) : (
-            <Typography>No results received.</Typography>
-          )}
-        </CardContent>
-      </Card>
-
-      <Button variant="outlined" sx={{ mt: 4 }} onClick={() => navigate('/')}>
-        Back to Upload
-      </Button>
+      <Box mt={4} textAlign="center">
+        <Button variant="outlined" onClick={handleBack}>
+          Back to Upload
+        </Button>
+      </Box>
     </Box>
   );
 };
