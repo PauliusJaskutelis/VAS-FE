@@ -2,7 +2,7 @@ import axios from 'axios';
 import { API_BASE_URL } from '../config';
 
 export const uploadImage = async (
-  file: File,
+  files: File[],
   predictionCount: number,
   confidenceThreshold: number
 ) => {
@@ -12,7 +12,7 @@ export const uploadImage = async (
     confidence_threshold: confidenceThreshold.toString(),
   });
 
-  payload.append('file', file);
+  files.forEach((file) => payload.append('files', file));
 
   return axios.post(`${API_BASE_URL}/image?${params}`, payload, {
     headers: { 'Content-Type': 'multipart/form-data' },

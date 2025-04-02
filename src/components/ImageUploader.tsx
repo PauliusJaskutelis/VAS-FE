@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { MdClear } from 'react-icons/md';
 import { uploadImage } from '../services/api';
@@ -24,32 +24,39 @@ interface Props {
 }
 
 const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [snackOpen, setSnackOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [status, setStatus] = useState<'success' | 'error'>('success');
   const { settings } = useSettings();
   const { predictionCount, confidenceThreshold } = settings;
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = event.target.files?.[0];
-    if (selected) setFile(selected);
+    const selected = event.target.files;
+    if (selected) setFiles([...files, ...Array.from(selected)]);
   };
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
-    const dropped = event.dataTransfer.files?.[0];
-    if (dropped) setFile(dropped);
+    const dropped = event.dataTransfer.files;
+    if (dropped) setFiles((prev) => [...prev, ...Array.from(dropped)]);
   };
 
-  const handleRemoveFile = () => setFile(null);
+  const handleRemoveFile = (index: number) => {
+    setFiles(files.filter((_, i) => i !== index));
+  };
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (files.length === 0) return;
     setLoading(true);
     try {
-      const res = await uploadImage(file, predictionCount, confidenceThreshold);
-      console.log(res);
+      const res = await uploadImage(
+        files,
+        predictionCount,
+        confidenceThreshold
+      );
+      console.log('result', res);
       setMessage('Successful Upload!');
       setStatus('success');
       if (onUploadSuccess) onUploadSuccess(res.data);
@@ -106,6 +113,7 @@ const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
             Choose a File
             <input
               type="file"
+              multiple
               hidden
               accept=".png,.jpg,.jpeg"
               onChange={handleFileChange}
@@ -113,29 +121,47 @@ const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
           </Button>
         </Box>
 
-        {file && (
-          <Stack
-            direction="row"
-            justifyContent="space-between"
-            alignItems="center"
+        {files.length > 0 && (
+          <Box
             mt={2}
+            maxHeight={200}
+            overflow="auto"
             sx={{
               border: '1px solid',
               borderColor: 'divider',
               borderRadius: 1,
-              px: 2,
-              py: 1,
               bgcolor: '#444',
+              px: 1,
             }}
           >
-            <Typography variant="body2">{file.name}</Typography>
-            <IconButton onClick={handleRemoveFile} color="error">
-              <MdClear />
-            </IconButton>
-          </Stack>
+            {files.map((f, index) => (
+              <Stack
+                key={index}
+                direction="row"
+                justifyContent="space-between"
+                alignItems="center"
+                sx={{
+                  px: 2,
+                  py: 1,
+                  borderBottom: '1px solid',
+                  borderColor: 'divider',
+                }}
+              >
+                <Typography variant="body2" noWrap maxWidth="80%">
+                  {f.name}
+                </Typography>
+                <IconButton
+                  onClick={() => handleRemoveFile(index)}
+                  color="error"
+                >
+                  <MdClear />
+                </IconButton>
+              </Stack>
+            ))}
+          </Box>
         )}
 
-        {file && (
+        {files.length > 0 && (
           <Button
             variant="contained"
             color="info"
