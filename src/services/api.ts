@@ -18,3 +18,17 @@ export const uploadImage = async (
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 };
+
+export const uploadModel = async (file: File, modelName: string) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  //formData.append('name', modelName); // if your backend supports it
+
+  const response = await axios.post(`${API_BASE_URL}/models`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data;
+};

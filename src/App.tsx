@@ -3,6 +3,7 @@ import Home from './pages/Home';
 import Results from './pages/Results';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './theme/theme';
+import Model from './pages/Model'; // Import the ModelUpload component
 
 function App() {
   return (
@@ -12,6 +13,10 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/results" element={<Results />} />
+          <Route path="*" element={<Home />} />{' '}
+          {/* Redirect to Home for any other route */}
+          <Route path="/model" element={<Model />} />{' '}
+          {/* Add ModelUpload route */}
         </Routes>
       </Router>
     </ThemeProvider>
