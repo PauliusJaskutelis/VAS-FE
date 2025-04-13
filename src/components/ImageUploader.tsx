@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { MdClear } from 'react-icons/md';
 import { uploadImage } from '../services/api';
@@ -63,7 +63,7 @@ const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
       setMessage('Successful Upload!');
       setStatus('success');
 
-      files.forEach((file, index) => {
+      files.forEach((file) => {
         const match = res.data.find((r: any) => r.filename === file.name);
         if (match) {
           const preview = URL.createObjectURL(file);
