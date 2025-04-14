@@ -19,10 +19,15 @@ export const uploadImage = async (
   });
 };
 
-export const uploadModel = async (file: File, modelName: string) => {
+export const uploadModel = async (
+  file: File,
+  modelName: string,
+  modelId: string
+) => {
   const formData = new FormData();
   formData.append('file', file);
-  //formData.append('name', modelName); // if your backend supports it
+  formData.append('name', modelName); // if your backend supports it
+  formData.append('modelId', modelId); // if your backend supports it
 
   const response = await axios.post(`${API_BASE_URL}/models`, formData, {
     headers: {
@@ -30,5 +35,10 @@ export const uploadModel = async (file: File, modelName: string) => {
     },
   });
 
+  return response.data;
+};
+
+export const fetchModels = async () => {
+  const response = await axios.get(`${API_BASE_URL}/models`);
   return response.data;
 };
