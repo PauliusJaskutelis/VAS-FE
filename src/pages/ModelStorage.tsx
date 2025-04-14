@@ -49,7 +49,13 @@ const ModelStoragePage = () => {
     <>
       <Navigation onSettingsClick={() => setSettingsOpen(true)} />
       <Settings open={settingsOpen} onClose={() => setSettingsOpen(false)} />
-      <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+      <Box
+        sx={{
+          height: 'calc(100vh - 64px)',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
         <Grid container>
           {/* Left pane: Detailed model view */}
           <Grid item xs={12} md={4} sx={{ borderRight: '1px solid #444' }}>

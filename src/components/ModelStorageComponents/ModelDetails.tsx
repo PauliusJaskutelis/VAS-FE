@@ -1,6 +1,6 @@
 // components/ModelDetails.tsx
 import React from 'react';
-import { Box, Typography, Divider, Chip, Paper, Stack } from '@mui/material';
+import { Box, Typography, Divider, Paper, Stack } from '@mui/material';
 import { ModelMetadata } from '../../types';
 import StatusBadge from './StatusBadge';
 
