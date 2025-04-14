@@ -3,33 +3,22 @@ import React from 'react';
 import { Chip } from '@mui/material';
 
 interface Props {
-  status:
-    | 'uploading'
-    | 'extracting'
-    | 'validating'
-    | 'analyzing'
-    | 'ready'
-    | 'error';
+  status: 'EXTRACTING' | 'VALIDATING' | 'ANALYZING' | 'READY' | 'ERROR';
 }
 
 const statusColors: Record<
-  string,
-  'default' | 'primary' | 'success' | 'error' | 'warning' | 'info'
+  Props['status'],
+  'info' | 'warning' | 'success' | 'error' | 'default'
 > = {
-  uploading: 'info',
-  extracting: 'warning',
-  validating: 'warning',
-  analyzing: 'primary',
-  ready: 'success',
-  error: 'error',
+  EXTRACTING: 'info',
+  VALIDATING: 'warning',
+  ANALYZING: 'info',
+  READY: 'success',
+  ERROR: 'error',
 };
 
-const StatusBadge: React.FC<Props> = ({ status }) => (
-  <Chip
-    label={status.toUpperCase()}
-    color={statusColors[status]}
-    size="small"
-  />
-);
+const StatusBadge: React.FC<Props> = ({ status }) => {
+  return <Chip label={status} color={statusColors[status]} size="small" />;
+};
 
 export default StatusBadge;

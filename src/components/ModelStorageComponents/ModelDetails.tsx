@@ -1,20 +1,12 @@
 // components/ModelDetails.tsx
 import React from 'react';
-import { Box, Typography, Divider, Chip } from '@mui/material';
-import { ModelCardProps } from './ModelCard';
+import { Box, Typography, Divider, Chip, Paper, Stack } from '@mui/material';
+import { ModelMetadata } from '../../types';
+import StatusBadge from './StatusBadge';
 
 interface ModelDetailsProps {
-  model: ModelCardProps | null;
+  model: ModelMetadata | null;
 }
-
-const statusColors: Record<
-  string,
-  'success' | 'error' | 'warning' | 'default'
-> = {
-  ready: 'success',
-  error: 'error',
-  extracting: 'warning',
-};
 
 const ModelDetails: React.FC<ModelDetailsProps> = ({ model }) => {
   if (!model) {
@@ -29,37 +21,36 @@ const ModelDetails: React.FC<ModelDetailsProps> = ({ model }) => {
       </Box>
     );
   }
-
   return (
-    <Box p={3}>
-      <Typography variant="h6" gutterBottom>
-        Model Details
+    <Paper
+      sx={{ height: '100%', backgroundColor: '#2e2e2e', color: 'white', p: 3 }}
+    >
+      <Typography variant="h5" gutterBottom>
+        {model.filename}
       </Typography>
 
-      <Divider sx={{ mb: 2 }} />
+      <StatusBadge status={model.status} />
 
-      <Typography variant="subtitle1" fontWeight="bold">
-        Name:
-      </Typography>
-      <Typography variant="body1" gutterBottom>
-        {model.name}
-      </Typography>
+      <Divider sx={{ my: 2, borderColor: '#555' }} />
 
-      <Typography variant="subtitle1" fontWeight="bold">
-        Input Shape:
-      </Typography>
-      <Typography variant="body1" gutterBottom>
-        [{model.inputShape?.join(', ')}]
-      </Typography>
-
-      <Typography variant="subtitle1" fontWeight="bold">
-        Status:
-      </Typography>
-      <Chip
-        label={model.status}
-        color={statusColors[model.status] || 'default'}
-      />
-    </Box>
+      <Stack spacing={1}>
+        <Typography variant="body2">
+          <strong>Model ID:</strong> {model.id}
+        </Typography>
+        <Typography variant="body2">
+          <strong>Input Shape:</strong> {model.inputWidth} x {model.inputHeight}
+        </Typography>
+        <Typography variant="body2">
+          <strong>Color Mode:</strong> {model.colorMode}
+        </Typography>
+        <Typography variant="body2">
+          <strong>Preprocessing:</strong> {model.preprocessing}
+        </Typography>
+        <Typography variant="body2" sx={{ wordBreak: 'break-all' }}>
+          <strong>Storage Path:</strong> {model.storagePath}
+        </Typography>
+      </Stack>
+    </Paper>
   );
 };
 
