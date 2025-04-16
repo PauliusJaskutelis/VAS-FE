@@ -1,5 +1,5 @@
 // components/ModelList.tsx
-import React, { useState } from 'react';
+import React from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import ModelCard from './ModelCard';
 import { ModelMetadata } from '../../types';
@@ -37,7 +37,7 @@ const ModelList: React.FC<ModelListProps> = ({
       p={3}
       display="flex"
       flexDirection="column"
-      sx={{ height: '100vh' }}
+      sx={{ height: 'calc(100vh - 64px)' }}
       gap={2}
     >
       <Box sx={{ display: 'flex', justifyContent: 'right' }}>
@@ -61,7 +61,7 @@ const ModelList: React.FC<ModelListProps> = ({
           pr: 1, // optional: prevents scrollbars from cutting into content
         }}
       >
-        {models.map((model) => (
+        {[...models].reverse().map((model) => (
           <Box key={model.id} sx={{ flexShrink: 0 }}>
             <ModelCard model={model} onClick={() => onSelect(model)} />
           </Box>

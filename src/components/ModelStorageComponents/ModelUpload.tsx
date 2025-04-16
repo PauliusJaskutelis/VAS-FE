@@ -6,7 +6,6 @@ import {
   Typography,
   TextField,
   Button,
-  CircularProgress,
   Snackbar,
   Alert,
   InputLabel,
@@ -55,7 +54,7 @@ const ModelUpload: React.FC<ModelUploadProps> = ({
     onClose();
     onModelUpload({
       id: modelId,
-      filename: file.name,
+      filename: modelName,
       status: 'EXTRACTING',
       inputWidth: 0,
       inputHeight: 0,
