@@ -7,6 +7,7 @@ import Home from './pages/Home';
 import ModelStoragePage from './pages/ModelStorage';
 import Register from './pages/Register';
 import OAuthCallback from './pages/OAuthCallback';
+import ImageStoragePage from './pages/ImageStorage';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="*" element={<Home />} />{' '}
           {/* Redirect to Home for any other route */}
           <Route path="/modelStorage" element={<ModelStoragePage />} />{' '}
+          <Route path='/imageStorage' element={<ImageStoragePage />} />
         </Routes>
       </Router>
     </ThemeProvider>

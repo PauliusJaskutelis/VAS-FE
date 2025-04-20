@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { MdClear } from 'react-icons/md';
-import { classifyImage, uploadImage } from '../services/api';
+import { classifyImage } from '../services/api';
 import {
   Alert,
   Button,
@@ -169,7 +169,7 @@ const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
             sx={{ mt: 2 }}
             color="info"
           >
-            Choose a File
+            Choose a File{' '}
             <input
               type="file"
               multiple
