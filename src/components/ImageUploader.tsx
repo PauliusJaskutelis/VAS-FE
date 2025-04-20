@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { MdClear } from 'react-icons/md';
 import { classifyImage, uploadImage } from '../services/api';

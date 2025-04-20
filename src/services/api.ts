@@ -44,6 +44,22 @@ export const classifyImage = async (
   );
 };
 
+export const registerUser = async (email: string, password: string) => {
+  const response = await axios.post(`${API_BASE_URL}/auth/register`, {
+    email,
+    password,
+  });
+  return response.data;
+};
+
+export const loginUser = async (email: string, password: string) => {
+  const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+    email,
+    password,
+  });
+  return response.data; // usually contains token/user info
+}
+
 export const uploadModel = async (
   file: File,
   modelName: string,

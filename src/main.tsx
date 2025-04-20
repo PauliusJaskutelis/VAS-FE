@@ -5,9 +5,11 @@ import { SettingsProvider } from './context/SettingsContext.tsx';
 import { ResultsProvider } from './context/ResultsContext.tsx';
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import theme from './theme/theme.ts';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
+    <GoogleOAuthProvider clientId='739981906150-jam0tlo719vdqs8achdiliq7gb74j9oi.apps.googleusercontent.com'>
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <SettingsProvider>
@@ -16,5 +18,6 @@ createRoot(document.getElementById('root')!).render(
         </ResultsProvider>
       </SettingsProvider>
     </ThemeProvider>
+    </GoogleOAuthProvider>
   </StrictMode>
 );
