@@ -10,7 +10,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { loginUser } from '../services/api';
 import { useState } from 'react';
-import { GoogleLogin, useGoogleLogin } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 import { googleOAuth } from '../services/OAuth';
 
 const Login = () => {
