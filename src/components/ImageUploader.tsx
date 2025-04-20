@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { MdClear } from 'react-icons/md';
-import { uploadImage } from '../services/api';
+import { classifyImage, uploadImage } from '../services/api';
 import {
   Alert,
   Button,
@@ -13,10 +13,13 @@ import {
   Box,
   Stack,
   IconButton,
+  TextField,
+  MenuItem,
 } from '@mui/material';
 import './image-uploader.css';
 import { useSettings } from '../context/SettingsContext';
 import { useResults } from '../context/ResultsContext';
+import { ModelMetadata } from '../types';
 
 interface Props {
   onUploadSuccess?: (result: any) => void;
@@ -34,6 +37,23 @@ const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
   const { addImageResult } = useResults();
   const { settings } = useSettings();
   const { predictionCount, confidenceThreshold } = settings;
+  const [availableModels, setAvailableModels] = useState<ModelMetadata[]>([]);
+  const [selectedModelId, setSelectedModelId] = useState<string | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    const fetchModels = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/models`);
+        const data = await res.json();
+        setAvailableModels(data);
+      } catch (err) {
+        console.error('Failed to fetch models', err);
+      }
+    };
+    fetchModels();
+  }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selected = event.target.files;
@@ -54,8 +74,10 @@ const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
     if (files.length === 0) return;
     setLoading(true);
     try {
-      const res = await uploadImage(
+      const res = await classifyImage(
         files,
+        selectedModelId,
+        availableModels.find((model) => model.id === selectedModelId)?.filename,
         predictionCount,
         confidenceThreshold
       );
@@ -95,9 +117,31 @@ const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
       }}
     >
       <CardContent>
-        <Typography variant="h5" gutterBottom>
-          Upload Image
-        </Typography>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={2}
+        >
+          <Typography variant="h5">Upload Image</Typography>
+          <Box minWidth={200}>
+            <TextField
+              select
+              size="small"
+              fullWidth
+              variant="outlined"
+              label="Select Model"
+              value={selectedModelId || ''}
+              onChange={(e) => setSelectedModelId(e.target.value)}
+            >
+              {availableModels.map((model) => (
+                <MenuItem key={model.id} value={model.id}>
+                  {model.filename}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Box>
+        </Box>
         <Box
           onDrop={handleDrop}
           onDragOver={(e) => e.preventDefault()}
