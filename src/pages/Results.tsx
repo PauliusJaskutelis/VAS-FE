@@ -7,7 +7,7 @@ import {
   Grid,
   Divider,
 } from '@mui/material';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useResults } from '../context/ResultsContext';
 
 const Results = () => {
