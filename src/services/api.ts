@@ -19,6 +19,31 @@ export const uploadImage = async (
   });
 };
 
+export const classifyImage = async (
+  files: File[],
+  selectedModelId: string | undefined,
+  modelName: string | undefined,
+  predictionCount: number,
+  confidenceThreshold: number
+) => {
+  const payload = new FormData();
+  const params = new URLSearchParams({
+    model_name: modelName || '',
+    prediction_count: predictionCount.toString(),
+    confidence_threshold: confidenceThreshold.toString(),
+  });
+
+  files.forEach((file) => payload.append('files', file));
+
+  return axios.post(
+    `${API_BASE_URL}/image/classify-with-model/${selectedModelId}?${params}`,
+    payload,
+    {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    }
+  );
+};
+
 export const registerUser = async (email: string, password: string) => {
   const response = await axios.post(`${API_BASE_URL}/auth/register`, {
     email,
