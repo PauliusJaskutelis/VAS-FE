@@ -6,9 +6,11 @@ import {
   IconButton,
   Slider,
   Divider,
+  Button,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useSettings } from '../context/SettingsContext';
+import { useNavigate } from 'react-router-dom';
 
 interface SettingsProps {
   open: boolean;
@@ -17,6 +19,12 @@ interface SettingsProps {
 
 const Settings: React.FC<SettingsProps> = ({ open, onClose }) => {
   const { settings, updateSettings } = useSettings();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/login');
+  };
 
   return (
     <Drawer anchor="right" open={open} onClose={onClose}>
@@ -58,6 +66,11 @@ const Settings: React.FC<SettingsProps> = ({ open, onClose }) => {
           step={0.01}
         />
       </Box>
+      <Divider />
+
+      <Button variant="outlined" color="error" fullWidth onClick={handleLogout}>
+        Logout
+      </Button>
     </Drawer>
   );
 };

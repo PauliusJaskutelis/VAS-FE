@@ -1,5 +1,5 @@
-import axios from 'axios';
 import { API_BASE_URL } from '../config';
+import apiInstance from './apiInstance';
 
 export const uploadImage = async (
   files: File[],
@@ -14,7 +14,7 @@ export const uploadImage = async (
 
   files.forEach((file) => payload.append('files', file));
 
-  return axios.post(`${API_BASE_URL}/image?${params}`, payload, {
+  return apiInstance.post(`${API_BASE_URL}/image?${params}`, payload, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 };
@@ -35,17 +35,15 @@ export const classifyImage = async (
 
   files.forEach((file) => payload.append('files', file));
 
-  return axios.post(
+  return apiInstance.post(
     `${API_BASE_URL}/image/classify-with-model/${selectedModelId}?${params}`,
     payload,
-    {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }
+    { headers: { 'Content-Type': 'multipart/form-data' } }
   );
 };
 
 export const registerUser = async (email: string, password: string) => {
-  const response = await axios.post(`${API_BASE_URL}/auth/register`, {
+  const response = await apiInstance.post(`${API_BASE_URL}/auth/register`, {
     email,
     password,
   });
@@ -53,12 +51,12 @@ export const registerUser = async (email: string, password: string) => {
 };
 
 export const loginUser = async (email: string, password: string) => {
-  const response = await axios.post(`${API_BASE_URL}/auth/login`, {
+  const response = await apiInstance.post(`${API_BASE_URL}/auth/login`, {
     email,
     password,
   });
   return response.data; // usually contains token/user info
-}
+};
 
 export const uploadModel = async (
   file: File,
@@ -70,16 +68,33 @@ export const uploadModel = async (
   formData.append('name', modelName); // if your backend supports it
   formData.append('modelId', modelId); // if your backend supports it
 
-  const response = await axios.post(`${API_BASE_URL}/models`, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
+  const response = await apiInstance.post(`${API_BASE_URL}/models`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
 
   return response.data;
 };
 
 export const fetchModels = async () => {
-  const response = await axios.get(`${API_BASE_URL}/models`);
+  const response = await apiInstance.get(`${API_BASE_URL}/models`);
   return response.data;
+};
+
+export const storeImage = async (image: File) => {
+  const formData = new FormData();
+  formData.append('image', image);
+
+  const response = await apiInstance.post(
+    `${API_BASE_URL}/image-storage`,
+    formData,
+    { headers: { 'Content-Type': 'multipart/form-data' } }
+  );
+
+  return response.data;
+};
+
+// Retrieve all stored image metadata or previews
+export const getStoredImages = async () => {
+  const response = await apiInstance.get(`${API_BASE_URL}/image-storage`);
+  return response.data; // Array of image metadata or preview URLs
 };
