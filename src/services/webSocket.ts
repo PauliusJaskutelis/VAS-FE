@@ -3,8 +3,10 @@ import { Client } from '@stomp/stompjs';
 export const connectWebSocket = (
   onMessage: (modelId: string, status: string) => void
 ) => {
+  const token = localStorage.getItem('token');
+
   const client = new Client({
-    brokerURL: 'http://localhost:8080/ws',
+    brokerURL: `http://localhost:8080/ws?token=${token}`,
     reconnectDelay: 5000,
     onConnect: () => {
       client.subscribe('/topic/model-status', (message) => {
