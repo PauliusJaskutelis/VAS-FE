@@ -30,6 +30,7 @@ function App() {
           <Route path="*" element={<Login />} />{' '}
           {/* Redirect to Home for any other route */}
           <Route path="/modelStorage" element={<ModelStoragePage />} />{' '}
+          <Route path="/imageStorage" element={<ImageStoragePage />} />
         </Routes>
       </Router>
     </ThemeProvider>
