@@ -22,6 +22,8 @@ export interface Image {
 }
 
 export type CatalogNode = {
+  id: string;
   name: string;
-  children?: CatalogNode[]; // For future nesting
+  parentId: string | null;
+  children?: CatalogNode[];
 };
