@@ -65,18 +65,28 @@ export const uploadModel = async (
 ) => {
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('name', modelName); // if your backend supports it
-  formData.append('modelId', modelId); // if your backend supports it
+  formData.append('name', modelName);
+  formData.append('modelId', modelId);
 
-  const response = await apiInstance.post(`${API_BASE_URL}/models`, formData, {
+  const response = await apiInstance.post('/models', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
 
   return response.data;
 };
 
+export const getModelById = async (modelId: string) => {
+  const response = await apiInstance.get(`/models/${modelId}`);
+  return response.data;
+};
+
 export const fetchModels = async () => {
-  const response = await apiInstance.get(`${API_BASE_URL}/models`);
+  const response = await apiInstance.get(`/models`);
+  return response.data;
+};
+
+export const deleteModel = async (modelId: string) => {
+  const response = await apiInstance.delete(`/models/${modelId}`);
   return response.data;
 };
 
@@ -95,6 +105,6 @@ export const storeImage = async (image: File) => {
 
 // Retrieve all stored image metadata or previews
 export const getStoredImages = async () => {
-  const response = await apiInstance.get(`${API_BASE_URL}/image-storage`);
+  const response = await apiInstance.get(`/image-storage`);
   return response.data; // Array of image metadata or preview URLs
 };
