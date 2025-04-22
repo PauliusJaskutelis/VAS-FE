@@ -26,7 +26,8 @@ const Login = () => {
   const handleLogin = async () => {
     setLoading(true);
     try {
-      await loginUser(email, password);
+      const res = await loginUser(email, password);
+      localStorage.setItem('token', res.token);
       setStatus('success');
       setMessage('Login successful!');
       setSnackOpen(true);
@@ -96,11 +97,17 @@ const Login = () => {
 
           try {
             const res = await googleOAuth(token);
-
+            localStorage.setItem('token', res.data.token); // save JWT
             console.log('✅ Auth success:', res.data);
-            // You might want to save the session, redirect, etc.
+            setStatus('success');
+            setMessage('Google login successful!');
+            setSnackOpen(true);
+            navigate('/');
           } catch (error) {
             console.error('❌ Auth failed:', error);
+            setStatus('error');
+            setMessage('Google authentication failed.');
+            setSnackOpen(true);
           }
         }}
         onError={() => {
