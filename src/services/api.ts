@@ -1,4 +1,5 @@
 import { API_BASE_URL } from '../config';
+import { CatalogNode, ImageMetadata } from '../types';
 import apiInstance from './apiInstance';
 
 export const uploadImage = async (
@@ -107,4 +108,55 @@ export const storeImage = async (image: File) => {
 export const getStoredImages = async () => {
   const response = await apiInstance.get(`/image-storage`);
   return response.data; // Array of image metadata or preview URLs
+};
+
+export const fetchRootCatalogs = async (): Promise<CatalogNode[]> => {
+  const response = await apiInstance.get('/catalogs/root');
+  return response.data;
+};
+
+export const createCatalog = async (
+  name: string,
+  parentId: string | null,
+  isPublic: boolean = false
+) => {
+  const formData = new FormData();
+  formData.append('name', name);
+  formData.append('isPublic', String(isPublic));
+  if (parentId) formData.append('parentId', parentId);
+
+  const response = await apiInstance.post('/catalogs', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+  return response.data;
+};
+
+export const fetchCatalogChildren = async (
+  parentId: string
+): Promise<CatalogNode[]> => {
+  const response = await apiInstance.get(`/catalogs/${parentId}/children`);
+  return response.data;
+};
+
+export const uploadImagesToCatalog = async (
+  catalogId: string,
+  files: File[]
+): Promise<ImageMetadata[]> => {
+  const formData = new FormData();
+  files.forEach((file) => formData.append('files', file));
+  formData.append('catalogId', catalogId);
+
+  const response = await apiInstance.post('/images/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+  return response.data;
+};
+
+export const fetchImagesByCatalog = async (
+  catalogId: string
+): Promise<ImageMetadata[]> => {
+  const response = await apiInstance.get(`/images/catalog/${catalogId}`);
+  return response.data;
 };
