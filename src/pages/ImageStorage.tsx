@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Typography, Paper, Divider, Grid } from '@mui/material';
 import ImageCard from '../components/ImageStorageComponents/ImageCard';
-import { CatalogNode } from '../types';
+import { CatalogNode, ImageMetadata } from '../types';
 import CatalogPanel from '../components/ImageStorageComponents/CatalogPanel';
 import {
   createCatalog,
   fetchCatalogChildren,
+  fetchImagesByCatalog,
   fetchRootCatalogs,
+  uploadImagesToCatalog,
 } from '../services/api';
 import {
   buildCatalogTree,
@@ -17,10 +19,11 @@ import {
 const ImageStoragePage = () => {
   const [catalogTree, setCatalogTree] = useState<CatalogNode[]>([]);
   const [selectedPath, setSelectedPath] = useState<string[]>(['Uncategorized']);
+  const [selectedCatalogId, setSelectedCatalogId] = useState<string | null>(
+    null
+  );
 
-  const [images, setImages] = useState<
-    { file: File; preview: string; catalogPath: string[] }[]
-  >([]);
+  const [images, setImages] = useState<ImageMetadata[]>([]);
 
   const getPathString = (path: string[]) => path.join('/');
 
@@ -59,10 +62,22 @@ const ImageStoragePage = () => {
   };
 
   const handleSelectCatalog = async (path: string[]) => {
-    setSelectedPath(path);
-
     const selectedId = findParentIdFromPath(catalogTree, path);
     if (!selectedId) return;
+
+    setSelectedPath(path);
+    setSelectedCatalogId(selectedId || null);
+
+    if (selectedId) {
+      try {
+        const imgs = await fetchImagesByCatalog(selectedId);
+        setImages(imgs);
+      } catch (err) {
+        console.error('❌ Failed to fetch images for catalog', err);
+      }
+    } else {
+      setImages([]);
+    }
 
     const updateTreeWithChildren = async () => {
       const children = await fetchCatalogChildren(selectedId);
@@ -118,17 +133,27 @@ const ImageStoragePage = () => {
     setCatalogTree((prev) => removeNode(prev, targetPath));
   };
 
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
     const files = event.target.files;
     if (!files) return;
 
-    const newImages = Array.from(files).map((file) => ({
-      file,
-      preview: URL.createObjectURL(file),
-      catalogPath: selectedPath,
-    }));
+    const catalogId = findParentIdFromPath(catalogTree, selectedPath);
+    if (!catalogId) {
+      alert('Please select a folder to upload images.');
+      return;
+    }
 
-    setImages((prev) => [...prev, ...newImages]);
+    try {
+      const uploadedImages = await uploadImagesToCatalog(
+        catalogId,
+        Array.from(files)
+      );
+      setImages((prev) => [...prev, ...uploadedImages]);
+    } catch (err) {
+      console.error('❌ Failed to upload images:', err);
+    }
   };
 
   const selectedPathStr = getPathString(selectedPath);
@@ -185,23 +210,13 @@ const ImageStoragePage = () => {
             </Typography>
             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
               {images
-                .filter(
-                  (img) => getPathString(img.catalogPath) === selectedPathStr
-                )
-                .map((img, index) => (
+                .filter((img) => img.catalogId === selectedCatalogId)
+                .map((img) => (
                   <ImageCard
-                    key={index}
-                    imageUrl={img.preview}
-                    filename={img.file.name}
-                    onDelete={() =>
-                      setImages((prev) =>
-                        prev.filter(
-                          (_, i) =>
-                            i !== index ||
-                            getPathString(img.catalogPath) !== selectedPathStr
-                        )
-                      )
-                    }
+                    key={img.id}
+                    imageId={img.id}
+                    filename={img.filename}
+                    onDelete={() => {}}
                   />
                 ))}
             </Box>

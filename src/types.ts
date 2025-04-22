@@ -9,6 +9,20 @@ export interface ModelMetadata {
   status: 'EXTRACTING' | 'VALIDATING' | 'ANALYZING' | 'READY' | 'ERROR';
   storagePath: string;
 }
+
+export interface ImageMetadata {
+  id: string;
+  filename: string;
+  contentType: string;
+  format: string;
+  colorMode: string;
+  width: number;
+  height: number;
+  uploadDate: string;
+  catalogId: string;
+  ownerId: string;
+}
+
 export interface Catalog {
   name: string;
   images: Image[];

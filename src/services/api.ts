@@ -1,5 +1,5 @@
 import { API_BASE_URL } from '../config';
-import { CatalogNode } from '../types';
+import { CatalogNode, ImageMetadata } from '../types';
 import apiInstance from './apiInstance';
 
 export const uploadImage = async (
@@ -136,5 +136,27 @@ export const fetchCatalogChildren = async (
   parentId: string
 ): Promise<CatalogNode[]> => {
   const response = await apiInstance.get(`/catalogs/${parentId}/children`);
+  return response.data;
+};
+
+export const uploadImagesToCatalog = async (
+  catalogId: string,
+  files: File[]
+): Promise<ImageMetadata[]> => {
+  const formData = new FormData();
+  files.forEach((file) => formData.append('files', file));
+  formData.append('catalogId', catalogId);
+
+  const response = await apiInstance.post('/images/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+  return response.data;
+};
+
+export const fetchImagesByCatalog = async (
+  catalogId: string
+): Promise<ImageMetadata[]> => {
+  const response = await apiInstance.get(`/images/catalog/${catalogId}`);
   return response.data;
 };

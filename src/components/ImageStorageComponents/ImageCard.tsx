@@ -1,20 +1,54 @@
-import React from 'react';
-import { IconButton, Typography, Card, CardMedia, CardContent } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import {
+  IconButton,
+  Typography,
+  Card,
+  CardMedia,
+  CardContent,
+} from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 
 interface ImageCardProps {
-  imageUrl: string;
+  imageId: string;
   filename?: string;
   onDelete?: () => void;
 }
 
-const ImageCard: React.FC<ImageCardProps> = ({ imageUrl, filename, onDelete }) => {
+const ImageCard: React.FC<ImageCardProps> = ({
+  imageId,
+  filename,
+  onDelete,
+}) => {
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchImage = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(
+          `http://localhost:8080/api/images/${imageId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        setPreviewUrl(objectUrl);
+
+        return () => URL.revokeObjectURL(objectUrl); // cleanup
+      } catch (err) {
+        console.error(`❌ Failed to load image preview:`, err);
+      }
+    };
+
+    fetchImage();
+  }, [imageId]);
+
   return (
     <Card sx={{ width: 140, position: 'relative' }}>
       <CardMedia
         component="img"
         height="120"
-        image={imageUrl}
+        image={previewUrl ?? ''}
         alt={filename ?? 'Uploaded Image'}
         sx={{ objectFit: 'cover' }}
       />
