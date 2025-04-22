@@ -83,3 +83,20 @@ export const fetchModels = async () => {
   const response = await axios.get(`${API_BASE_URL}/models`);
   return response.data;
 };
+
+export const storeImage = async (image: File) => {
+  const formData = new FormData();
+  formData.append('image', image);
+
+  const response = await axios.post(`${API_BASE_URL}/image-storage`, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+
+  return response.data;
+};
+
+// Retrieve all stored image metadata or previews
+export const getStoredImages = async () => {
+  const response = await axios.get(`${API_BASE_URL}/image-storage`);
+  return response.data; // Array of image metadata or preview URLs
+};
