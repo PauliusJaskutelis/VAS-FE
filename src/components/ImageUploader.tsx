@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AiOutlineCloudUpload } from 'react-icons/ai';
 import { MdClear } from 'react-icons/md';
-import { classifyImage } from '../services/api';
+import { classifyImage, fetchModels } from '../services/api';
 import {
   Alert,
   Button,
@@ -43,16 +43,15 @@ const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
   );
 
   useEffect(() => {
-    const fetchModels = async () => {
+    const loadModels = async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/models`);
-        const data = await res.json();
-        setAvailableModels(data);
+        const res = await fetchModels();
+        setAvailableModels(res);
       } catch (err) {
         console.error('Failed to fetch models', err);
       }
     };
-    fetchModels();
+    loadModels();
   }, []);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
