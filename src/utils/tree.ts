@@ -51,3 +51,22 @@ export const findNodeByPath = (
 
   return current || null;
 };
+
+export const removeNodeById = (
+  nodes: CatalogNode[],
+  targetId: string
+): CatalogNode[] => {
+  return nodes
+    .map((node) => {
+      if (node.id === targetId) {
+        return null; // Remove this node
+      }
+
+      if (node.children) {
+        return { ...node, children: removeNodeById(node.children, targetId) };
+      }
+
+      return node;
+    })
+    .filter(Boolean) as CatalogNode[];
+};

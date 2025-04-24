@@ -5,6 +5,8 @@ import { CatalogNode, ImageMetadata } from '../types';
 import CatalogPanel from '../components/ImageStorageComponents/CatalogPanel';
 import {
   createCatalog,
+  deleteCatalog,
+  deleteImage,
   fetchCatalogChildren,
   fetchImagesByCatalog,
   fetchRootCatalogs,
@@ -15,6 +17,7 @@ import {
   findNodeByPath,
   findParentIdFromPath,
 } from '../utils/tree';
+import Navigation from '../components/Navigation';
 
 const ImageStoragePage = () => {
   const [catalogTree, setCatalogTree] = useState<CatalogNode[]>([]);
@@ -63,7 +66,6 @@ const ImageStoragePage = () => {
 
   const handleSelectCatalog = async (path: string[]) => {
     const selectedId = findParentIdFromPath(catalogTree, path);
-    if (!selectedId) return;
 
     setSelectedPath(path);
     setSelectedCatalogId(selectedId || null);
@@ -75,62 +77,96 @@ const ImageStoragePage = () => {
       } catch (err) {
         console.error('❌ Failed to fetch images for catalog', err);
       }
-    } else {
-      setImages([]);
-    }
 
-    const updateTreeWithChildren = async () => {
-      const children = await fetchCatalogChildren(selectedId);
+      const updateTreeWithChildren = async () => {
+        const children = await fetchCatalogChildren(selectedId);
 
-      const updateNode = (
-        nodes: CatalogNode[],
-        path: string[]
-      ): CatalogNode[] =>
-        nodes.map((node) => {
-          if (node.name === path[0]) {
-            if (path.length === 1) {
-              return { ...node, children: children };
-            } else {
-              return {
-                ...node,
-                children: updateNode(node.children || [], path.slice(1)),
-              };
+        const updateNode = (
+          nodes: CatalogNode[],
+          path: string[]
+        ): CatalogNode[] =>
+          nodes.map((node) => {
+            if (node.name === path[0]) {
+              if (path.length === 1) {
+                return { ...node, children: children };
+              } else {
+                return {
+                  ...node,
+                  children: updateNode(node.children || [], path.slice(1)),
+                };
+              }
             }
-          }
-          return node;
-        });
+            return node;
+          });
 
-      setCatalogTree((prev) => updateNode(prev, path));
-    };
+        const node = findNodeByPath(catalogTree, path);
+        if (node && (!node.children || node.children.length === 0)) {
+          setCatalogTree((prev) => updateNode(prev, path));
+        }
+      };
 
-    // Only fetch children if they haven't been loaded yet
-    const node = findNodeByPath(catalogTree, path);
-    if (node && (!node.children || node.children.length === 0)) {
       await updateTreeWithChildren();
+    } else {
+      // Root: clear images + refresh entire root catalog tree
+      setImages([]);
+
+      try {
+        const rootCatalogs = await fetchRootCatalogs();
+        const rebuiltTree = buildCatalogTree(rootCatalogs);
+        setCatalogTree(rebuiltTree);
+      } catch (err) {
+        console.error('❌ Failed to refresh root catalogs', err);
+      }
     }
   };
 
-  const handleRemoveCatalog = (targetPath: string[]) => {
-    const removeNode = (nodes: CatalogNode[], path: string[]): CatalogNode[] =>
-      nodes
-        .map((node) => {
-          if (node.name === path[0]) {
-            if (path.length === 1) {
-              return null;
-            } else {
-              return {
-                ...node,
-                children: node.children
-                  ? removeNode(node.children, path.slice(1))
-                  : [],
-              };
-            }
-          }
-          return node;
-        })
-        .filter(Boolean) as CatalogNode[];
+  const handleRemoveCatalog = async (targetPath: string[]) => {
+    const catalogId = findParentIdFromPath(catalogTree, targetPath);
+    if (!catalogId) {
+      alert('Could not resolve catalog ID.');
+      return;
+    }
 
-    setCatalogTree((prev) => removeNode(prev, targetPath));
+    try {
+      await deleteCatalog(catalogId);
+
+      const removeNode = (
+        nodes: CatalogNode[],
+        path: string[]
+      ): CatalogNode[] =>
+        nodes
+          .map((node) => {
+            if (node.name === path[0]) {
+              if (path.length === 1) {
+                return null;
+              } else {
+                return {
+                  ...node,
+                  children: node.children
+                    ? removeNode(node.children, path.slice(1))
+                    : [],
+                };
+              }
+            }
+            return node;
+          })
+          .filter(Boolean) as CatalogNode[];
+
+      setCatalogTree((prev) => removeNode(prev, targetPath));
+    } catch (err) {
+      console.error('❌ Failed to delete catalog:', err);
+      alert('Failed to delete folder.');
+    }
+  };
+
+  const handleDeleteImage = async (imageId: string) => {
+    try {
+      await deleteImage(imageId);
+      setImages((prev) => prev.filter((img) => img.id !== imageId));
+    } catch (err) {
+      console.error('❌ Failed to delete image:', err);
+      alert('Failed to delete image.');
+    }
   };
 
   const handleFileUpload = async (
@@ -173,57 +209,67 @@ const ImageStoragePage = () => {
   }, []);
 
   return (
-    <Box
-      sx={{ p: 3, height: '100vh', display: 'flex', flexDirection: 'column' }}
-    >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
-        <Typography variant="h4">Image Storage</Typography>
-        <Button component="label" variant="contained">
-          Upload Images
-          <input
-            hidden
-            multiple
-            type="file"
-            accept="image/*"
-            onChange={handleFileUpload}
-          />
-        </Button>
+    <>
+      <Navigation />
+      <Box
+        sx={{
+          p: 3,
+          height: 'calc(100vh - 64px)',
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+          <Typography variant="h4">Image Storage</Typography>
+          <Button component="label" variant="contained">
+            Upload Images
+            <input
+              hidden
+              multiple
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+            />
+          </Button>
+        </Box>
+
+        <Divider sx={{ mb: 2 }} />
+
+        <Grid container spacing={2} sx={{ flexGrow: 1 }}>
+          <Grid item xs={12} md={3}>
+            <CatalogPanel
+              tree={catalogTree}
+              selectedPath={selectedPath}
+              onSelect={handleSelectCatalog}
+              onAdd={handleAddCatalog}
+              onDelete={handleRemoveCatalog}
+            />
+          </Grid>
+
+          <Grid item xs={12} md={9}>
+            <Paper sx={{ height: '100%', p: 2 }}>
+              <Typography variant="h6" gutterBottom>
+                {selectedPathStr || 'Uncategorized'}
+              </Typography>
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
+                {images
+                  .filter((img) => img.catalogId === selectedCatalogId)
+                  .map((img) => (
+                    <ImageCard
+                      key={img.id}
+                      imageId={img.id}
+                      filename={img.filename}
+                      onDelete={() => {
+                        handleDeleteImage(img.id);
+                      }}
+                    />
+                  ))}
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
       </Box>
-
-      <Divider sx={{ mb: 2 }} />
-
-      <Grid container spacing={2} sx={{ flexGrow: 1 }}>
-        <Grid item xs={12} md={3}>
-          <CatalogPanel
-            tree={catalogTree}
-            selectedPath={selectedPath}
-            onSelect={handleSelectCatalog}
-            onAdd={handleAddCatalog}
-            onDelete={handleRemoveCatalog}
-          />
-        </Grid>
-
-        <Grid item xs={12} md={9}>
-          <Paper sx={{ height: '100%', p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              {selectedPathStr || 'Uncategorized'}
-            </Typography>
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2 }}>
-              {images
-                .filter((img) => img.catalogId === selectedCatalogId)
-                .map((img) => (
-                  <ImageCard
-                    key={img.id}
-                    imageId={img.id}
-                    filename={img.filename}
-                    onDelete={() => {}}
-                  />
-                ))}
-            </Box>
-          </Paper>
-        </Grid>
-      </Grid>
-    </Box>
+    </>
   );
 };
 

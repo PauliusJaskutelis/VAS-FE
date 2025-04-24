@@ -69,34 +69,40 @@ const CatalogPanel: React.FC<Props> = ({
 
   return (
     <Box>
-    <List dense disablePadding>
-      {tree.map((node) => renderNode(node))}
-    </List>
-
-    {/* Add Folder Interface */}
-    {onAdd && (
-      <Box mt={2} display="flex" gap={1}>
-        <TextField
-          size="small"
-          fullWidth
-          label="New folder name"
-          value={newFolderName}
-          onChange={(e) => setNewFolderName(e.target.value)}
-        />
-        <Button
-          variant="outlined"
-          onClick={() => {
-            if (newFolderName.trim()) {
-              onAdd(selectedPath, newFolderName.trim());
-              setNewFolderName('');
-            }
-          }}
+      <List dense disablePadding>
+        <ListItemButton
+          selected={selectedPath.length === 0}
+          onClick={() => onSelect([])}
         >
-          Add
-        </Button>
-      </Box>
-    )}
-  </Box>
+          <ListItemText primary="Image Catalogs" />
+        </ListItemButton>
+        {tree.map((node) => renderNode(node))}
+      </List>
+
+      {/* Add Folder Interface */}
+      {onAdd && (
+        <Box mt={2} display="flex" gap={1}>
+          <TextField
+            size="small"
+            fullWidth
+            label="New folder name"
+            value={newFolderName}
+            onChange={(e) => setNewFolderName(e.target.value)}
+          />
+          <Button
+            variant="outlined"
+            onClick={() => {
+              if (newFolderName.trim()) {
+                onAdd(selectedPath, newFolderName.trim());
+                setNewFolderName('');
+              }
+            }}
+          >
+            Add
+          </Button>
+        </Box>
+      )}
+    </Box>
   );
 };
 

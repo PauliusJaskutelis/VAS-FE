@@ -37,7 +37,7 @@ export const classifyImage = async (
   files.forEach((file) => payload.append('files', file));
 
   return apiInstance.post(
-    `${API_BASE_URL}/image/classify-with-model/${selectedModelId}?${params}`,
+    `${API_BASE_URL}/classify/with-model/${selectedModelId}?${params}`,
     payload,
     { headers: { 'Content-Type': 'multipart/form-data' } }
   );
@@ -110,6 +110,10 @@ export const getStoredImages = async () => {
   return response.data; // Array of image metadata or preview URLs
 };
 
+export const deleteImage = async (imageId: string): Promise<void> => {
+  await apiInstance.delete(`/images/${imageId}`);
+};
+
 export const fetchRootCatalogs = async (): Promise<CatalogNode[]> => {
   const response = await apiInstance.get('/catalogs/root');
   return response.data;
@@ -159,4 +163,8 @@ export const fetchImagesByCatalog = async (
 ): Promise<ImageMetadata[]> => {
   const response = await apiInstance.get(`/images/catalog/${catalogId}`);
   return response.data;
+};
+
+export const deleteCatalog = async (catalogId: string): Promise<void> => {
+  await apiInstance.delete(`/catalogs/${catalogId}`);
 };
