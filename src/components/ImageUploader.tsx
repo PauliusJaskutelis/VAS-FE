@@ -80,7 +80,7 @@ const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
         predictionCount,
         confidenceThreshold
       );
-      console.log('result', res);
+      console.log('result', res.data);
       setMessage('Successful Upload!');
       setStatus('success');
 
