@@ -108,6 +108,7 @@ const ModelUpload: React.FC<ModelUploadProps> = ({
                     hidden
                     accept=".h5,.keras"
                     onChange={handleFileChange}
+                    data-testid="file-input"
                   />
                 </Button>
                 <Typography variant="body2" sx={{ mt: 1 }}>

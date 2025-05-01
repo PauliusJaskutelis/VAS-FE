@@ -12,7 +12,7 @@ const EmptyState: React.FC = () => {
         color: 'text.secondary',
       }}
     >
-      <CloudUploadIcon sx={{ fontSize: 64, mb: 2 }} />
+      <CloudUploadIcon data-testid="upload-icon" sx={{ fontSize: 64, mb: 2 }} />
       <Typography variant="h6">No models uploaded</Typography>
       <Typography variant="body2">
         Start by uploading a model to view its status and details.

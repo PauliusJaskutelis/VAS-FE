@@ -47,6 +47,7 @@ const CatalogPanel: React.FC<Props> = ({
           {hasChildren && (isExpanded ? <ExpandLess /> : <ExpandMore />)}
           {onDelete && (
             <IconButton
+              aria-label={`delete-${node.name}`}
               edge="end"
               size="small"
               onClick={(e) => {

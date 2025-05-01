@@ -19,7 +19,12 @@ const Navigation: React.FC<NavigationProps> = ({ onSettingsClick }) => {
         <Typography variant="h6" component="div">
           VAS
         </Typography>
-        <IconButton edge="end" color="inherit" onClick={onSettingsClick}>
+        <IconButton
+          edge="end"
+          color="inherit"
+          onClick={onSettingsClick}
+          aria-label="settings"
+        >
           <SettingsIcon />
         </IconButton>
       </Toolbar>
