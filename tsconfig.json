@@ -10,7 +10,7 @@
     "jsx": "react-jsx",
     "types": ["jest", "node"],
     "typeRoots": ["./node_modules/@types", "./tests"],
-    "moduleResolution": "Node",
+    "moduleResolution": "bundler",
     "moduleDetection": "force",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true
