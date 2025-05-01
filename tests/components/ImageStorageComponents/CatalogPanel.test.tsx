@@ -30,7 +30,7 @@ describe('CatalogPanel', () => {
     render(
       <CatalogPanel
         tree={mockTree}
-        selectedPath={['Root']}
+        selectedPath={['Root', 'Subfolder']}
         onSelect={() => {}}
       />
     );
@@ -43,7 +43,7 @@ describe('CatalogPanel', () => {
     render(
       <CatalogPanel
         tree={mockTree}
-        selectedPath={['Root']}
+        selectedPath={['Root', 'Subfolder']}
         onSelect={handleSelect}
       />
     );
@@ -56,13 +56,13 @@ describe('CatalogPanel', () => {
     render(
       <CatalogPanel
         tree={mockTree}
-        selectedPath={['Root']}
+        selectedPath={['Root', 'Subfolder']}
         onSelect={() => {}}
         onDelete={handleDelete}
       />
     );
-    const deleteButtons = screen.getAllByRole('button');
-    fireEvent.click(deleteButtons.at(-1)!); // Click Subfolder delete
+    const subfolderDeleteButton = screen.getByLabelText('delete-Subfolder');
+    fireEvent.click(subfolderDeleteButton);
     expect(handleDelete).toHaveBeenCalledWith(['Root', 'Subfolder']);
   });
 
@@ -71,7 +71,7 @@ describe('CatalogPanel', () => {
     render(
       <CatalogPanel
         tree={mockTree}
-        selectedPath={['Root']}
+        selectedPath={['Root', 'Subfolder']}
         onSelect={() => {}}
         onAdd={handleAdd}
       />
@@ -81,6 +81,6 @@ describe('CatalogPanel', () => {
     fireEvent.change(input, { target: { value: 'NewFolder' } });
     fireEvent.click(screen.getByText(/Add/i));
 
-    expect(handleAdd).toHaveBeenCalledWith(['Root'], 'NewFolder');
+    expect(handleAdd).toHaveBeenCalledWith(['Root', 'Subfolder'], 'NewFolder');
   });
 });

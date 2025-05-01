@@ -35,9 +35,7 @@ const CatalogPanel: React.FC<Props> = ({
     const isSelected =
       JSON.stringify(currentPath) === JSON.stringify(selectedPath);
     const hasChildren = node.children && node.children.length > 0;
-    const isExpanded =
-      selectedPath.length > path.length &&
-      selectedPath.slice(0, path.length).join('/') === currentPath.join('/');
+    const isExpanded = selectedPath.join('/').startsWith(currentPath.join('/'));
 
     return (
       <Box key={currentPath.join('/')} ml={path.length * 2}>
@@ -49,6 +47,7 @@ const CatalogPanel: React.FC<Props> = ({
           {hasChildren && (isExpanded ? <ExpandLess /> : <ExpandMore />)}
           {onDelete && (
             <IconButton
+              aria-label={`delete-${node.name}`}
               edge="end"
               size="small"
               onClick={(e) => {
