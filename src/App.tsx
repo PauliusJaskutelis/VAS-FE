@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import OAuthCallback from './pages/OAuthCallback';
 import ImageStoragePage from './pages/ImageStorage';
 import PrivateRoute from './components/PrivateRoute';
+import DummyResultsLoader from './pages/DummyResultsLoader';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             <Route path="/results" element={<Results />} />
             <Route path="/modelStorage" element={<ModelStoragePage />} />
             <Route path="/imageStorage" element={<ImageStoragePage />} />
+            <Route path="/dumb" element={<DummyResultsLoader />} />
           </Route>
           <Route path="*" element={<Login />} />{' '}
           {/* Redirect to Home for any other route */}

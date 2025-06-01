@@ -91,29 +91,31 @@ const Login = () => {
         OR
       </Typography>
 
-      <GoogleLogin
-        onSuccess={async (credentialResponse) => {
-          const token = credentialResponse.credential;
+      <Button
+        fullWidth
+        variant="outlined"
+        sx={{ mt: 2 }}
+        onClick={() => {
+          const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+          const redirectUri = 'http://localhost:5173/oauth2/callback';
+          const scope = 'email profile openid';
+          const responseType = 'code';
 
-          try {
-            const res = await googleOAuth(token);
-            localStorage.setItem('token', res.data.token); // save JWT
-            console.log('✅ Auth success:', res.data);
-            setStatus('success');
-            setMessage('Google login successful!');
-            setSnackOpen(true);
-            navigate('/');
-          } catch (error) {
-            console.error('❌ Auth failed:', error);
-            setStatus('error');
-            setMessage('Google authentication failed.');
-            setSnackOpen(true);
-          }
+          const googleOAuthUrl =
+            `https://accounts.google.com/o/oauth2/v2/auth` +
+            `?client_id=${clientId}` +
+            `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+            `&response_type=${responseType}` +
+            `&scope=${encodeURIComponent(scope)}` +
+            `&access_type=offline` +
+            `&prompt=consent`;
+          console.log('uri: ', googleOAuthUrl);
+
+          window.location.href = googleOAuthUrl;
         }}
-        onError={() => {
-          console.log('Login Failed');
-        }}
-      />
+      >
+        Continue with Google
+      </Button>
 
       <Typography variant="body2" align="center" mt={2}>
         Don’t have an account? <Link to="/register">Register</Link>

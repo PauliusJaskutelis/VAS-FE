@@ -7,8 +7,10 @@ interface ClassificationResult {
 
 interface ImageResult {
   filename: string;
-  preview: string; // base64 or object URL
-  results: ClassificationResult[];
+  preview: string;
+  models?: { [modelName: string]: ClassificationResult[] }; // new format
+  results?: ClassificationResult[]; // legacy
+  description?: string;
 }
 
 interface ResultsContextProps {

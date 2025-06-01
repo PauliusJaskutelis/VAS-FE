@@ -5,7 +5,6 @@ import { classifyImage, fetchModels } from '../../src/services/api';
 import { useSettings } from '../../src/context/SettingsContext';
 import { useResults } from '../../src/context/ResultsContext';
 
-// 🧪 Mocks
 jest.mock('../../src/services/api');
 jest.mock('../../src/context/SettingsContext');
 jest.mock('../../src/context/ResultsContext');
@@ -23,9 +22,14 @@ const dummyFile = new File(['test'], 'test-image.jpg', { type: 'image/jpeg' });
 
 describe('ImageUploader', () => {
   beforeEach(() => {
-    // Default mocks
     (useSettings as jest.Mock).mockReturnValue({
-      settings: { predictionCount: 3, confidenceThreshold: 0.7 },
+      settings: {
+        predictionCount: 3,
+        confidenceThreshold: 0.7,
+        selectedModelIds: ['model-1'],
+        describeWithLLM: false,
+      },
+      updateSettings: jest.fn(),
     });
 
     (useResults as jest.Mock).mockReturnValue({
@@ -45,8 +49,7 @@ describe('ImageUploader', () => {
 
   it('allows file selection and displays it', async () => {
     render(<ImageUploader />);
-
-    const fileInput = screen.getByLabelText(/Choose a File/i);
+    const fileInput = screen.getByTestId('file-input');
     fireEvent.change(fileInput, { target: { files: [dummyFile] } });
 
     await waitFor(() => {
@@ -62,35 +65,40 @@ describe('ImageUploader', () => {
 
     render(<ImageUploader onUploadSuccess={onUploadSuccess} />);
 
-    // Simulate file selection
-    const fileInput = screen.getByLabelText(/Choose a File/i);
+    const fileInput = screen.getByTestId('file-input');
     fireEvent.change(fileInput, { target: { files: [dummyFile] } });
 
-    // Wait for upload button to appear
     const uploadButton = await screen.findByRole('button', { name: /Upload/i });
-
     fireEvent.click(uploadButton);
 
     await waitFor(() => {
       expect(classifyImage).toHaveBeenCalledTimes(1);
-      console.log(onUploadSuccess.mock.calls[0][0]);
-      expect(onUploadSuccess).toHaveBeenCalledWith([
-        { filename: 'test-image.jpg', results: ['Label A'] },
-      ]);
+      expect(onUploadSuccess).toHaveBeenCalledWith(
+        expect.arrayContaining([
+          expect.objectContaining({
+            filename: 'test-image.jpg',
+            models: {
+              'model1.h5': ['Label A'],
+            },
+          }),
+        ])
+      );
       expect(screen.getByText(/Successful Upload/i)).toBeInTheDocument();
     });
   });
 
   it('handles upload error and displays message', async () => {
+    jest.spyOn(console, 'error').mockImplementation(() => {}); // silence
+
     (classifyImage as jest.Mock).mockRejectedValue(new Error('Upload failed'));
 
     render(<ImageUploader />);
 
+    // simulate file upload
     const fileInput = screen.getByLabelText(/Choose a File/i);
     fireEvent.change(fileInput, { target: { files: [dummyFile] } });
 
     const uploadButton = await screen.findByRole('button', { name: /Upload/i });
-
     fireEvent.click(uploadButton);
 
     await waitFor(() => {

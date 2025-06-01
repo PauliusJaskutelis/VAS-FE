@@ -20,6 +20,8 @@ describe('Settings', () => {
       settings: {
         predictionCount: 3,
         confidenceThreshold: 0.5,
+        describeWithLLM: true,
+        selectedModelIds: [],
       },
       updateSettings: mockUpdateSettings,
     });

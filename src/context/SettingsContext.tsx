@@ -3,6 +3,8 @@ import React, { createContext, useContext, useState } from 'react';
 interface Settings {
   predictionCount: number;
   confidenceThreshold: number;
+  selectedModelIds: string[];
+  describeWithLLM: boolean;
 }
 
 interface SettingsProviderProps {
@@ -13,6 +15,8 @@ interface SettingsProviderProps {
 const defaultSettings: Settings = {
   predictionCount: 5,
   confidenceThreshold: 0.5,
+  selectedModelIds: [],
+  describeWithLLM: true,
 };
 
 export const SettingsContext = createContext<SettingsProviderProps | undefined>(
