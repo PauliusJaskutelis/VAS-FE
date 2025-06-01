@@ -13,8 +13,13 @@ import {
   Box,
   Stack,
   IconButton,
-  TextField,
+  FormControlLabel,
+  Checkbox,
+  FormControl,
+  InputLabel,
+  Select,
   MenuItem,
+  ListItemText,
 } from '@mui/material';
 import './image-uploader.css';
 import { useSettings } from '../context/SettingsContext';
@@ -35,7 +40,7 @@ const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
   const [status, setStatus] = useState<'success' | 'error'>('success');
 
   const { addImageResult } = useResults();
-  const { settings } = useSettings();
+  const { settings, updateSettings } = useSettings();
   const { predictionCount, confidenceThreshold } = settings;
   const [availableModels, setAvailableModels] = useState<ModelMetadata[]>([]);
   const [selectedModelId, setSelectedModelId] = useState<string | undefined>(
@@ -70,32 +75,59 @@ const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
   };
 
   const handleUpload = async () => {
-    if (files.length === 0) return;
+    if (files.length === 0 || settings.selectedModelIds.length === 0) return;
+
     setLoading(true);
+    const imageResultsMap: { [filename: string]: any } = {};
+
     try {
-      const res = await classifyImage(
-        files,
-        selectedModelId,
-        availableModels.find((model) => model.id === selectedModelId)?.filename,
-        predictionCount,
-        confidenceThreshold
-      );
-      console.log('result', res.data);
+      for (const modelId of settings.selectedModelIds) {
+        const modelMeta = availableModels.find((m) => m.id === modelId);
+        if (!modelMeta) continue;
+
+        const res = await classifyImage(
+          files,
+          modelId,
+          modelMeta.filename,
+          predictionCount,
+          confidenceThreshold,
+          settings.describeWithLLM // <--- naujas parametras
+        );
+
+        console.log('Classification results:', res.data);
+
+        // Apdorojam kiekvieno paveikslėlio klasifikaciją
+        res.data.forEach((result: any) => {
+          const { filename, results, description } = result;
+          const file = files.find((f) => f.name === filename);
+          if (!file) return;
+
+          const preview = URL.createObjectURL(file);
+          if (!imageResultsMap[filename]) {
+            imageResultsMap[filename] = {
+              filename,
+              preview,
+              models: {},
+              description,
+            };
+          }
+
+          imageResultsMap[filename].models[modelMeta.filename] = results;
+
+          if (settings.describeWithLLM) {
+            imageResultsMap[filename].description = description;
+          }
+        });
+      }
+
+      Object.values(imageResultsMap).forEach((img: any) => {
+        addImageResult(img);
+      });
+
       setMessage('Successful Upload!');
       setStatus('success');
 
-      files.forEach((file) => {
-        const match = res.data.find((r: any) => r.filename === file.name);
-        if (match) {
-          const preview = URL.createObjectURL(file);
-          addImageResult({
-            filename: match.filename,
-            preview,
-            results: match.results,
-          });
-        }
-      });
-      if (onUploadSuccess) onUploadSuccess(res.data);
+      if (onUploadSuccess) onUploadSuccess(Object.values(imageResultsMap));
     } catch (e) {
       console.error(e);
       setMessage('Error while uploading.');
@@ -123,23 +155,37 @@ const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
           mb={2}
         >
           <Typography variant="h5">Upload Image</Typography>
-          <Box minWidth={200}>
-            <TextField
-              select
-              size="small"
-              fullWidth
-              variant="outlined"
-              label="Select Model"
-              value={selectedModelId || ''}
-              onChange={(e) => setSelectedModelId(e.target.value)}
+          <FormControl size="small" sx={{ minWidth: 250, maxWidth: 250 }}>
+            <InputLabel id="model-select-label">Select Models</InputLabel>
+            <Select
+              labelId="model-select-label"
+              multiple
+              value={settings.selectedModelIds}
+              onChange={(e) => {
+                const value = e.target.value;
+                updateSettings({
+                  selectedModelIds:
+                    typeof value === 'string' ? value.split(',') : value,
+                });
+              }}
+              renderValue={(selected) =>
+                availableModels
+                  .filter((model) => selected.includes(model.id))
+                  .map((model) => model.filename)
+                  .join(', ')
+              }
+              MenuProps={{ PaperProps: { style: { maxHeight: 300 } } }}
             >
               {availableModels.map((model) => (
                 <MenuItem key={model.id} value={model.id}>
-                  {model.filename}
+                  <Checkbox
+                    checked={settings.selectedModelIds.includes(model.id)}
+                  />
+                  <ListItemText primary={model.filename} />
                 </MenuItem>
               ))}
-            </TextField>
-          </Box>
+            </Select>
+          </FormControl>
         </Box>
         <Box
           onDrop={handleDrop}
@@ -175,6 +221,7 @@ const ImageUploader: React.FC<Props> = ({ onUploadSuccess, width, height }) => {
               hidden
               accept=".png,.jpg,.jpeg"
               onChange={handleFileChange}
+              data-testid="file-input"
             />
           </Button>
         </Box>

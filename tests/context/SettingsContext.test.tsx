@@ -45,6 +45,8 @@ describe('SettingsContext', () => {
     expect(result.current.settings).toEqual({
       predictionCount: 5,
       confidenceThreshold: 0.5,
+      describeWithLLM: true,
+      selectedModelIds: [],
     });
   });
 });

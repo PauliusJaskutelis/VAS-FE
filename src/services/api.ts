@@ -25,13 +25,15 @@ export const classifyImage = async (
   selectedModelId: string | undefined,
   modelName: string | undefined,
   predictionCount: number,
-  confidenceThreshold: number
+  confidenceThreshold: number,
+  describeWithLLM: boolean
 ) => {
   const payload = new FormData();
   const params = new URLSearchParams({
     model_name: modelName || '',
     prediction_count: predictionCount.toString(),
     confidence_threshold: confidenceThreshold.toString(),
+    describe: String(describeWithLLM),
   });
 
   files.forEach((file) => payload.append('files', file));

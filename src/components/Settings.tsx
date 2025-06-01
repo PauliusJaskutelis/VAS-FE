@@ -7,6 +7,8 @@ import {
   Slider,
   Divider,
   Button,
+  FormControlLabel,
+  Switch,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useSettings } from '../context/SettingsContext';
@@ -64,6 +66,18 @@ const Settings: React.FC<SettingsProps> = ({ open, onClose }) => {
           min={0}
           max={1.0}
           step={0.01}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              checked={settings.describeWithLLM}
+              onChange={(e) =>
+                updateSettings({ describeWithLLM: e.target.checked })
+              }
+              color="primary"
+            />
+          }
+          label="Describe with LLM"
         />
       </Box>
       <Divider />

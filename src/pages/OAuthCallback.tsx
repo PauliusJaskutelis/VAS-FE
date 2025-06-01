@@ -1,18 +1,65 @@
 // OAuthCallback.tsx
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { googleOAuth } from '../services/OAuth';
+import { Box, CircularProgress, Paper, Typography } from '@mui/material';
 
 const OAuthCallback = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    // Here you could extract the token from the URL (if using implicit flow)
-    // or call your backend to exchange an auth code (for auth-code flow)
-    // Then redirect to your dashboard or homepage
-    navigate('/');
+    const params = new URLSearchParams(location.search);
+    const code = params.get('code');
+
+    const exchangeCodeForToken = async () => {
+      try {
+        const res = await googleOAuth(code || undefined);
+        console.log('code: ', code);
+        console.log('data: ', res.data);
+        const { token } = res.data;
+        console.log('token: ', token);
+
+        localStorage.setItem('token', token);
+        navigate('/');
+      } catch (error) {
+        console.error('OAuth login failed! ', error);
+        navigate('/login');
+      }
+    };
+    if (code) exchangeCodeForToken();
+    else navigate('/login');
   }, [navigate]);
 
-  return <div>Processing login...</div>;
+  return (
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'background.default',
+      }}
+    >
+      <Paper
+        elevation={4}
+        sx={{
+          p: 4,
+          textAlign: 'center',
+          maxWidth: 400,
+          width: '90%',
+        }}
+      >
+        <CircularProgress color="primary" />
+        <Typography variant="h6" mt={2}>
+          Processing login...
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          Please wait while we redirect you back to the application.
+        </Typography>
+      </Paper>
+    </Box>
+  );
 };
 
 export default OAuthCallback;
